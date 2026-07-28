@@ -1,0 +1,16 @@
+{
+  "name": "폴겟(Forget)",
+  "short_name": "폴겟",
+  "description": "기억하지 마세요. 폴겟하세요.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F7F9F8",
+  "theme_color": "#167C4E",
+  "icons": [
+    {
+      "src": "assets/forget-icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
