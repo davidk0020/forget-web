@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#167C4E">
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32.png">
+  <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
+  <title>공유된 저장 목록 — 폴겟(Forget)</title>
+  <meta name="description" content="폴겟으로 공유한 저장 목록이에요.">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="ko_KR">
+  <meta property="og:site_name" content="폴겟(Forget)">
+  <meta property="og:title" content="폴겟에서 공유한 저장 목록">
+  <meta property="og:description" content="친구가 보낸 저장 목록이에요. 열어서 확인해 보세요.">
+  <meta property="og:image" content="https://forgetapp.kr/assets/og-image.jpg">
+  <style>
+    :root { color-scheme: light dark; }
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", sans-serif;
+      margin: 0; background: #F6F8F7; color: #14201A;
+    }
+    .wrap { max-width: 560px; margin: 0 auto; padding: 20px 16px 48px; }
+    .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; text-decoration: none; color: inherit; }
+    .brand img { width: 36px; height: 36px; border-radius: 9px; }
+    .brand b { font-size: 17px; }
+    .brand small { color: #5B6B62; font-weight: 500; margin-left: 2px; }
+    h1 { font-size: 21px; margin: 6px 0 3px; line-height: 1.35; word-break: keep-all; }
+    .meta { font-size: 13px; color: #5B6B62; margin-bottom: 16px; }
+    .apps { display: flex; gap: 8px; margin: 4px 0 20px; }
+    .btn {
+      flex: 1; text-align: center; padding: 13px 10px; border-radius: 13px; font-size: 15px;
+      font-weight: 700; text-decoration: none; background: #167C4E; color: #fff;
+    }
+    .btn.ghost { background: transparent; border: 1.5px solid #167C4E; color: #167C4E; }
+    .card {
+      display: block; background: #FFFFFF; border: 1px solid #E3E9E5; border-radius: 14px;
+      padding: 14px 16px; margin-bottom: 10px; text-decoration: none; color: inherit;
+    }
+    .card b { font-size: 15px; font-weight: 600; line-height: 1.4; }
+    .card .url { font-size: 12px; color: #1D7A4C; word-break: break-all; margin-top: 4px; }
+    .card .sub { font-size: 13px; color: #5B6B62; margin-top: 4px; line-height: 1.45; }
+    .footer { text-align: center; font-size: 13px; color: #5B6B62; margin-top: 28px; }
+    .footer a { color: #167C4E; font-weight: 600; text-decoration: none; }
+    .state { text-align: center; padding: 56px 12px; color: #5B6B62; font-size: 15px; line-height: 1.6; }
+    .spinner {
+      width: 28px; height: 28px; margin: 0 auto 14px; border-radius: 50%;
+      border: 3px solid #DDE6E0; border-top-color: #167C4E; animation: spin 0.9s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @media (prefers-color-scheme: dark) {
+      body { background: #101613; color: #EDF3EF; }
+      .card { background: #1A231E; border-color: #2A362F; }
+      .card .sub, .meta, .footer, .state, .brand small { color: #93A69B; }
+      .card .url { color: #4FBE87; }
+      .btn { background: #1E9963; }
+      .btn.ghost { border-color: #4FBE87; color: #4FBE87; background: transparent; }
+      .footer a { color: #4FBE87; }
+      .spinner { border-color: #2A362F; border-top-color: #4FBE87; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="brand" href="https://forgetapp.kr">
+      <img src="../assets/forget-icon.png" alt="">
+      <span><b>폴겟</b> <small>Forget</small></span>
+    </a>
+    <div id="app">
+      <div class="state"><div class="spinner"></div>목록을 불러오는 중이에요…</div>
+    </div>
+    <div class="footer">폴겟(Forget) — 기억하지 마세요, 폴겟하세요<br>
+      <a href="https://forgetapp.kr">폴겟 알아보기 →</a></div>
+  </div>
+
+  <script>
+    // 공유 스냅샷은 Supabase 공개 함수(shared-list)의 JSON 모드에서 가져온다.
+    // supabase.co 기본 도메인은 HTML을 text/plain으로 강제해 페이지가 렌더링되지 않으므로
+    // (플랫폼 정책) 렌더링은 이 정적 페이지가 담당한다.
+    var API = 'https://gyxeysskppzdrikdtfju.supabase.co/functions/v1/shared-list';
+    var app = document.getElementById('app');
+    var id = new URLSearchParams(location.search).get('id') || '';
+
+    function el(tag, cls, text) {
+      var n = document.createElement(tag);
+      if (cls) n.className = cls;
+      if (text) n.textContent = text; // textContent만 사용 — 공유 데이터로 HTML 주입 불가
+      return n;
+    }
+
+    function showError(msg) {
+      app.replaceChildren(el('div', 'state', msg));
+    }
+
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
+      showError('목록을 찾을 수 없어요. 링크가 잘못되었거나 삭제되었어요.');
+    } else {
+      fetch(API + '?id=' + encodeURIComponent(id) + '&format=json')
+        .then(function (res) { return res.ok ? res.json() : Promise.reject(); })
+        .then(function (data) {
+          if (!data || !Array.isArray(data.items)) throw new Error('bad');
+          var title = (typeof data.title === 'string' && data.title.trim()) ? data.title : '저장 목록';
+          document.title = title + ' — 폴겟(Forget)';
+
+          var frag = document.createDocumentFragment();
+          var h1 = el('h1'); h1.append('📌 ' + title); frag.append(h1);
+
+          var when = '';
+          try { when = ' · ' + new Date(data.created_at).toLocaleDateString('ko-KR') + ' 공유됨'; } catch (e) {}
+          frag.append(el('div', 'meta', data.items.length + '개 항목' + when));
+
+          var apps = el('div', 'apps');
+          var open = el('a', 'btn', '📲 폴겟 앱으로 가져오기');
+          open.href = 'forget://import/' + id;
+          var about = el('a', 'btn ghost', '폴겟 알아보기');
+          about.href = 'https://forgetapp.kr';
+          apps.append(open, about);
+          frag.append(apps);
+
+          data.items.forEach(function (item) {
+            var url = (typeof item.url === 'string' && /^https?:\/\//i.test(item.url)) ? item.url : null;
+            var card = el(url ? 'a' : 'div', 'card');
+            if (url) { card.href = url; card.target = '_blank'; card.rel = 'noopener noreferrer'; }
+            card.append(el('b', null, item.title || url || '(제목 없음)'));
+            if (url) card.append(el('div', 'url', url));
+            if (item.desc && item.desc !== item.title) card.append(el('div', 'sub', String(item.desc).slice(0, 300)));
+            if (Array.isArray(item.tags) && item.tags.length) {
+              card.append(el('div', 'sub', item.tags.map(function (t) { return '#' + t; }).join(' ')));
+            }
+            frag.append(card);
+          });
+          app.replaceChildren(frag);
+        })
+        .catch(function () {
+          showError('목록을 찾을 수 없어요. 링크가 잘못되었거나 삭제되었어요.');
+        });
+    }
+  </script>
+</body>
+</html>
