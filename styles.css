@@ -13,3 +13,27 @@ body{background:radial-gradient(circle at 14% 0%,rgba(255,246,226,.78),transpare
 .final-cta{padding:28px 32px;border-radius:28px;box-shadow:0 14px 36px rgba(35,91,67,.08)}.cta-logo img{width:62px}.cta-mail{min-width:170px;text-align:center}
 @media(max-width:980px){.hero-copy{padding-left:0}.hero-grid{gap:20px}.phone-shell{left:50%}.device-one,.device-two,.device-three{transform:none}}
 @media(max-width:640px){.hero{padding-top:38px}.hero-copy h1{font-size:50px}.hero-product{min-height:555px}.phone-shell{width:294px;height:530px}.device-mockup{height:430px}.feature-bento,.workflow-grid,.trust-panel{border-radius:24px}.final-cta{padding:22px}}
+
+/* 모바일 히어로 수정 (2026-09-23): 아래쪽 데스크톱 규칙(.hero-grid 2열·폰 350px·카드 205px)이 미디어 쿼리보다 뒤에 있어
+   휴대폰에서도 2열로 깔려 폰 목업이 글 위에 겹쳤다. 파일 끝에서 모바일 규칙을 다시 선언해 확실히 이긴다. */
+@media(max-width:980px){
+  .hero-grid{grid-template-columns:1fr;min-height:auto;gap:28px}
+  .hero-copy{text-align:center;padding-left:0}
+  .launch-chip,.hero-description,.hero-actions{margin-left:auto;margin-right:auto}
+  .hero-actions{justify-content:center}
+  .hero-product{min-height:620px;width:100%;max-width:520px;margin:0 auto}
+  .phone-shell{left:50%;width:330px;height:596px;border-width:7px}
+  .floating-card{width:190px;padding:14px}
+  .save-float{left:0;top:110px}
+  .find-float{right:0;top:370px}
+}
+@media(max-width:640px){
+  .hero{padding-top:34px}
+  .hero-copy h1{font-size:clamp(40px,12vw,50px)}
+  .hero-product{min-height:560px}
+  .phone-shell{width:280px;height:520px}
+  .floating-card{width:150px;padding:11px}
+  .floating-card strong{font-size:11px}
+  .save-float{left:0;top:64px}
+  .find-float{right:0;top:340px}
+}
