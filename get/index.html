@@ -29,9 +29,9 @@
     <h1>기억하지 마세요, 폴겟하세요</h1>
     <p id="msg">스토어로 이동합니다…</p>
     <a id="ios" class="btn" href="https://apps.apple.com/kr/app/id6793758380">App Store에서 받기</a>
-    <a id="android" class="btn secondary hidden" href="/">안드로이드는 곧 출시됩니다 · 소개 보기</a>
+    <a id="android" class="btn hidden" href="https://play.google.com/store/apps/details?id=kr.forgetapp.forget">Google Play에서 받기</a>
     <a id="home" class="btn secondary hidden" href="/">폴겟 소개 보기</a>
-    <p class="small">iOS 정식 출시 · 안드로이드 정식 출시 준비 중</p>
+    <p class="small">iOS App Store · Android Google Play 정식 출시</p>
   </main>
   <script>
     (function () {
@@ -46,8 +46,9 @@
       // pt 없이 ct만 보내면 애플이 무시하므로, 현재는 서버 집계(track-link)가 방문 출처를 담당한다.
       var APPLE_PT = '';
       var iosUrl = 'https://apps.apple.com/kr/app/id6793758380' + (APPLE_PT ? '?pt=' + APPLE_PT + '&ct=' + encodeURIComponent(c) + '&mt=8' : '');
-      // 안드로이드 정식 출시 후: Play 링크 + referrer=utm_source%3Dforget_get%26utm_campaign%3D<c>
-      var ANDROID_URL = '';
+      // 안드로이드 정식 출시 (2026-09-19): Play 링크 + referrer UTM — Play Console 획득 보고서에서 캠페인별로 보인다
+      var ANDROID_URL = 'https://play.google.com/store/apps/details?id=kr.forgetapp.forget&referrer=' +
+        encodeURIComponent('utm_source=forget_get&utm_medium=smartlink&utm_campaign=' + c);
 
       // 방문 집계 (개인정보 없음: 캠페인·플랫폼·리퍼러 호스트만)
       try {
@@ -60,13 +61,15 @@
 
       var ios = document.getElementById('ios'), android = document.getElementById('android'), home = document.getElementById('home'), msg = document.getElementById('msg');
       ios.href = iosUrl;
+      android.href = ANDROID_URL;
       if (isIOS) {
         setTimeout(function () { location.href = iosUrl; }, 400);
       } else if (isAndroid) {
-        if (ANDROID_URL) { setTimeout(function () { location.href = ANDROID_URL; }, 400); }
-        else { msg.textContent = '안드로이드 버전은 정식 출시를 준비하고 있어요. 출시되면 이 링크로 바로 설치할 수 있습니다.'; ios.classList.add('hidden'); android.classList.remove('hidden'); }
+        ios.classList.add('hidden'); android.classList.remove('hidden');
+        setTimeout(function () { location.href = ANDROID_URL; }, 400);
       } else {
         msg.textContent = '휴대폰에서 이 페이지를 열면 스토어로 바로 이동합니다.';
+        android.classList.remove('hidden');
         home.classList.remove('hidden');
       }
     })();
